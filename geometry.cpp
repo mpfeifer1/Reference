@@ -84,7 +84,7 @@ vector<point> intersect(segment s1, segment s2) {
     vector<point> res;
     point a = s1.p1, b = s1.p2, c = s2.p1, d = s2.p2;
     if(orientation(a,b,c) == 0 && orientation(a,b,d) == 0 &&
-       orientation(c,d,a) == 0 && orientation(c,d,b) == 0) {
+            orientation(c,d,a) == 0 && orientation(c,d,b) == 0) {
         point min_s1 = min(a,b), max_s1 = max(a,b);
         point min_s2 = min(c,d), max_s2 = max(c,d);
         if(min_s1 < min_s2) {
@@ -123,32 +123,109 @@ ld linepointdist(segment s, point p, bool issegment) {
     return abs(crossproduct(s.p1,s.p2,p) / pointdist(s.p1,s.p2));
 }
 
-vector<point> convexhull(vector<point>& X, bool onedge = false) {
-    vector<point> hull;
-    ll N = X.size();
-    vector<bool> used(N, false);
-    int p = 0;
-    for(int i = 1; i < N; i++) if(X[i].x < X[p].x) p = i;
-    int start = p;
-    do {
-        int n = -1;
-        ld dist = onedge ? iinf : 0;
-        for(int i = 0; i < N; i++) {
-            if(i == p || used[i]) continue;
-            if(n == -1) n = i;
-            ld cross = crossproduct(X[p], X[i], X[n]);
-            ld d = pointsquareddist(X[i], X[p]);
-            if(cross < 0 || (cross == 0 &&
-                ((onedge && d < dist) || (!onedge && d > dist)))) {
-                n = i;
-                dist = d;
-            }
+// A utility function to find next to top in a stack
+point nextToTop(stack<point> &S) {
+    point p = S.top();
+    S.pop();
+    point res = S.top();
+    S.push(p);
+    return res;
+}
+
+// A function used by library function qsort() to sort an array of
+// points with respect to the first point
+point p0;
+bool convex_onedge;
+int convexcompare(const void *vp1, const void *vp2) {
+    point *p1 = (point *)vp1;
+    point *p2 = (point *)vp2;
+
+    // Find orientation
+    int o = orientation(p0, *p1, *p2);
+    if (o == 0 && !convex_onedge)
+        return (pointsquareddist(p0, *p2) >= pointsquareddist(p0, *p1))? -1 : 1;
+    if (o == 0 && convex_onedge)
+        return 1;
+
+    return (o == 2)? -1: 1;
+}
+
+vector<point> convexhull(vector<point> points, bool onedge = false) {
+    convex_onedge = onedge;
+    int n = points.size();
+    if(n < 3) {
+        return {};
+    }
+
+    // Find the bottommost point
+    int ymin = points[0].y, min = 0;
+    for (int i = 1; i < n; i++) {
+        int y = points[i].y;
+
+        // Pick the bottom-most or chose the left
+        // most point in case of tie
+        if ((y < ymin) || (ymin == y &&
+                    points[i].x < points[min].x))
+            ymin = points[i].y, min = i;
+    }
+
+    // Place the bottom-most point at first position
+    swap(points[0], points[min]);
+
+    // Sort n-1 points with respect to the first point.
+    // A point p1 comes before p2 in sorted ouput if p2
+    // has larger polar angle (in counterclockwise
+    // direction) than p1
+    p0 = points[0];
+    qsort(&points[1], n-1, sizeof(point), convexcompare);
+
+    // If two or more points make same angle with p0,
+    // Remove all but the one that is farthest from p0
+    // Remember that, in above sorting, our criteria was
+    // to keep the farthest point at the end when more than
+    // one points have same angle.
+    int m = 1; // Initialize size of modified array
+    for (int i=1; i<n; i++) {
+        // Keep removing i while angle of i and i+1 is same
+        // with respect to p0
+        if(!onedge) {
+            while (i < n-1 && (orientation(p0, points[i], points[i+1]) == 0))
+                i++;
         }
-        p = n;
-        used[p] = true;
-        hull.pb(X[p]);
-    } while(start != p);
-    return hull;
+
+        points[m] = points[i];
+        m++;  // Update size of modified array
+    }
+
+    // If modified array of points has less than 3 points,
+    // convex hull is not possible
+    if (m < 3) return {};
+
+    // Create an empty stack and push first three points
+    // to it.
+    stack<point> S;
+    S.push(points[0]);
+    S.push(points[1]);
+    S.push(points[2]);
+
+    // Process remaining n-3 points
+    for (int i = 3; i < m; i++) {
+        // Keep removing top while the angle formed by
+        // points next-to-top, top, and points[i] makes
+        // a non-left turn
+        while((orientation(nextToTop(S), S.top(), points[i]) == 0 && !onedge) ||
+              (orientation(nextToTop(S), S.top(), points[i]) == 1))
+            S.pop();
+        S.push(points[i]);
+    }
+
+    // Now stack has the output points, build a vector to return
+    vector<point> result;
+    while(!S.empty()) {
+        result.pb(S.top());
+        S.pop();
+    }
+    return result;
 }
 
 ld polyarea(vector<point>& p) {
@@ -165,7 +242,7 @@ int insidepoly(vector<point> poly, point p) {
     for(uint i = 0, j = poly.size()-1; i < poly.size(); i++, j=i-1) {
         if(p == poly[i] || p == poly[j]) return ONEDGE;
         if(orientation(p,poly[i],poly[j]) == COLINEAR &&
-           onsegment(p,segment(poly[i],poly[j]))) return ONEDGE;
+                onsegment(p,segment(poly[i],poly[j]))) return ONEDGE;
         intersection = intersect(segment(p,outside), segment(poly[i],poly[j]));
         if(intersection.size() == 1) {
             if(poly[i] == intersection[0] && poly[j].y <= p.y) continue;
