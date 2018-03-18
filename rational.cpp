@@ -26,14 +26,7 @@ void simplify(rat& r) {
     }
 }
 
-rat perpendicular(rat r) {
-    simplify(r);
-    rat ret = {-r.bot, r.top};
-    simplify(ret);
-    return ret;
-}
-
-rat multiply(rat r1, rat r2) {
+rat mul(rat r1, rat r2) {
     simplify(r1);
     simplify(r2);
     rat ret = {r1.top * r2.top, r1.bot * r2.bot};
@@ -41,19 +34,44 @@ rat multiply(rat r1, rat r2) {
     return ret;
 }
 
-rat multiply(rat r1, ll i) {
+rat mul(rat r1, ll i) {
     simplify(r1);
     rat ret = {r1.top * i, r1.bot};
     simplify(ret);
     return ret;
 }
 
-rat divide(rat r1, rat r2) {
+rat div(rat r1, rat r2) {
     simplify(r1);
     simplify(r2);
     rat ret = {r1.top * r2.bot, r1.bot * r2.top};
     simplify(ret);
     return ret;
+}
+
+rat div(rat r1, ll i) {
+    simplify(r1);
+    rat ret = {r1.top, r1.bot * i};
+    simplify(ret);
+    return ret;
+}
+
+rat add(rat r1, rat r2) {
+    simplify(r1);
+    simplify(r2);
+
+    ll bot1 = r1.bot;
+    ll bot2 = r2.bot;
+
+    r1.top *= bot2;
+    r1.bot *= bot2;
+
+    r2.top *= bot1;
+    r2.bot *= bot2;
+
+    rat r = {r1.top + r2.top, r1.bot};
+    simplify(r);
+    return r;
 }
 
 rat add(rat r1, ll i) {
@@ -64,6 +82,9 @@ rat add(rat r1, ll i) {
 }
 
 rat sub(rat r1, rat r2) {
+    simplify(r1);
+    simplify(r2);
+
     ll bot1 = r1.bot;
     ll bot2 = r2.bot;
 
@@ -78,6 +99,20 @@ rat sub(rat r1, rat r2) {
     return r;
 }
 
+rat sub(rat r1, ll i) {
+    simplify(r1);
+    rat ret = {r1.top - (i * r1.bot), r1.bot};
+    simplify(ret);
+    return ret;
+}
+
+rat perpendicular(rat r) {
+    simplify(r);
+    rat ret = {-r.bot, r.top};
+    simplify(ret);
+    return ret;
+}
+
 rat abs(rat r) {
     simplify(r);
     if(r.top < 0) {
@@ -88,6 +123,7 @@ rat abs(rat r) {
 }
 
 rat neg(rat r) {
+    simplify(r);
     r.top *= -1;
     simplify(r);
     return r;
