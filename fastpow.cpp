@@ -1,4 +1,6 @@
 ll fastpow(ll base, ll exp, ll mod) {
+    base %= mod;
+    exp %= mod;
     ll res = 1;
     while(exp > 0) {
         if((exp & 1) == 1) {
