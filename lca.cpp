@@ -23,6 +23,25 @@ int par(vector<vector<int>>& memo, int x, int n) {
     return x;
 }
 
+// Returns lowest common ancestor of x and y
+int LCA(vector<vector<int>>& memo, int x, int y) {
+    if(depth[x] < depth[y]) swap(x,y);
+    int diff = depth[x] - depth[y];
+    for(int k = LOG; k >= 0; --k) {
+        if(diff&(1<<k)) {
+            x = memo[x][k];
+        }
+    }
+    for(int k = LOG; k >= 0; --k) {
+        if(memo[x][k] != memo[y][k]) {
+            x = memo[x][k];
+            y = memo[y][k];
+        }
+    }
+    if(x != y) x = parent[x];
+    return x;
+}
+
 // Builds LCA table
 void build(vector<vector<int>>& memo, vector<int>& par) {
     int n = par.size();
