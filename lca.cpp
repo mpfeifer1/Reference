@@ -24,7 +24,7 @@ int par(vector<vector<int>>& memo, int x, int n) {
 }
 
 // Returns lowest common ancestor of x and y
-int LCA(vector<vector<int>>& memo, int x, int y) {
+int lca(vector<vector<int>>& memo, int x, int y) {
     if(depth[x] < depth[y]) swap(x,y);
     int diff = depth[x] - depth[y];
     for(int k = LOG; k >= 0; --k) {
