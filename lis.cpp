@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 // Returns an array with the indexes of the LIS
 template <class T>
 vector<int> LIS(vector<T>& v) {
@@ -36,25 +33,4 @@ vector<int> LIS(vector<T>& v) {
     reverse(ans.begin(), ans.end());
 
     return ans;
-}
-
-int main() {
-    int n;
-
-    while(cin >> n) {
-        // Read in array
-        vector<int> arr(n,0);
-        for(int i = 0; i < n; ++i) cin >> arr[i];
-
-        // Get LIS
-        vector<int> lis = LIS(arr);
-
-        // Print answer
-        cout << lis.size() << endl;
-        for(auto i : lis) {
-            cout << i << " ";
-        }
-        cout << endl;
-    }
-    return 0;
 }
