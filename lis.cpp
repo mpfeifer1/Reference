@@ -1,38 +1,60 @@
-#include <tr1/memory>
+#include <bits/stdc++.h>
+using namespace std;
 
-template <typename T>
-struct Node {
-  T value;
-  tr1::shared_ptr<Node<T> > pointer;
-};
-
+// Returns an array with the indexes of the LIS
 template <class T>
-struct node_ptr_less {
-  bool operator()(const tr1::shared_ptr<Node<T> > &node1,
-		  const tr1::shared_ptr<Node<T> > &node2) const {
-    return node1->value < node2->value;
-  }
-};
+vector<int> LIS(vector<T>& v) {
+    vector<int> p(v.size(), -1);
+    vector<int> t(v.size(), 0);
 
-template <typename T>
-vector<T> lis(const vector<T> &n) {
-  typedef tr1::shared_ptr<Node<T> > NodePtr;
-  vector<NodePtr> pileTops;
-  for (typename vector<T>::const_iterator it = n.begin(); it != n.end(); it++) {
-    NodePtr node(new Node<T>());
-    node->value = *it;
-    typename vector<NodePtr>::iterator j =
-      lower_bound(pileTops.begin(), pileTops.end(), node, node_ptr_less<T>());
-    if (j != pileTops.begin())
-      node->pointer = *(j-1);
-    if (j != pileTops.end())
-      *j = node;
-    else
-      pileTops.push_back(node);
-  }
-  vector<T> result;
-  for (NodePtr node = pileTops.back(); node != NULL; node = node->pointer)
-    result.push_back(node->value);
-  reverse(result.begin(), result.end());
-  return result;
+    int lis = 1;
+    for(int i = 1; i < v.size(); i++) {
+        if(v[i] <= v[t[0]]) {
+            t[0] = i;
+        }
+        else if(v[i] > v[t[lis - 1]]) {
+            p[i] = t[lis - 1];
+            t[lis++] = i;
+        }
+        else {
+            int l = -1;
+            int r = lis - 1;
+            while(r - l > 1) {
+                int m = l + (r - l) / 2;
+                if(v[t[m]] >= v[i]) r = m;
+                else l = m;
+            }
+            p[i] = t[r - 1];
+            t[r] = i;
+        }
+    }
+
+    vector<int> ans;
+    for(int i = t[lis - 1]; i >= 0; i = p[i]) {
+        ans.push_back(i);
+    }
+    reverse(ans.begin(), ans.end());
+
+    return ans;
+}
+
+int main() {
+    int n;
+
+    while(cin >> n) {
+        // Read in array
+        vector<int> arr(n,0);
+        for(int i = 0; i < n; ++i) cin >> arr[i];
+
+        // Get LIS
+        vector<int> lis = LIS(arr);
+
+        // Print answer
+        cout << lis.size() << endl;
+        for(auto i : lis) {
+            cout << i << " ";
+        }
+        cout << endl;
+    }
+    return 0;
 }
