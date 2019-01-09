@@ -1,72 +1,86 @@
-// You must set the maximum size for your graph
-const int MAXN = 3;
+const ll MAXN = 300*300+2;
+const ll INF = (ll)1000000000;
 
-int n;
-int cap[MAXN][MAXN];
-int nedge[MAXN];
-int edge[MAXN][MAXN];
-int prev[MAXN];
+struct edge {
+	ll a, b, cap, flow;
+};
 
-void addedge(int a, int b, int c) {
-    edge[a][nedge[a]++] = b;
-    cap[a][b] = c;
+ll n, s, t, d[MAXN], ptr[MAXN], q[MAXN];
+vector<edge> e;
+vector<ll> g[MAXN];
+
+void addedge(ll a, ll b, ll cap) {
+	edge e1 = { a, b, cap, 0 };
+	edge e2 = { b, a, 0, 0 };
+	g[a].push_back((ll) e.size());
+	e.push_back(e1);
+	g[b].push_back((ll) e.size());
+	e.push_back(e2);
 }
 
-int maxFlowDinic(int s, int t) {
-    int q[MAXN];
-    int prev[MAXN];
-    int flow = 0;
-    int qf, qb, bot, u, v;
+bool bfs() {
+	ll qh=0, qt=0;
+	q[qt++] = s;
+	memset(d, -1, n * sizeof d[0]);
+	d[s] = 0;
+	while(qh < qt && d[t] == -1) {
+		ll v = q[qh++];
+		for(size_t i=0; i<g[v].size(); ++i) {
+			ll id = g[v][i],
+				to = e[id].b;
+			if(d[to] == -1 && e[id].flow < e[id].cap) {
+				q[qt++] = to;
+				d[to] = d[v] + 1;
+			}
+		}
+	}
+	return d[t] != -1;
+}
 
-    while (true) {
-        qf = qb = 0;
-        memset(prev, -1, sizeof(prev));
+ll dfs(ll v, ll flow) {
+	if(!flow)  return 0;
+	if(v == t)  return flow;
+	for(; ptr[v]<(ll)g[v].size(); ++ptr[v]) {
+		ll id = g[v][ptr[v]];
+        ll to = e[id].b;
+		if(d[to] != d[v] + 1)  continue;
+		ll pushed = dfs(to, min (flow, e[id].cap - e[id].flow));
+		if(pushed) {
+			e[id].flow += pushed;
+			e[id^1].flow -= pushed;
+			return pushed;
+		}
+	}
+	return 0;
+}
 
-        q[qb++] = s;
-        prev[s] = -2;
-
-        while (qb > qf && prev[t] == -1) {
-            u = q[qf++];
-            for (int i = 0; i < nedge[u]; i++)
-                if (prev[v = edge[u][i]] == -1 && cap[u][v])
-                    prev[q[qb++] = v] = u;
+ll dinic() {
+	ll flow = 0;
+	for(;;) {
+		if(!bfs())  break;
+		memset(ptr, 0, n * sizeof ptr[0]);
+		while(ll pushed = dfs(s,INF)) {
+			flow += pushed;
         }
-
-        if (prev[t] == -1) return flow;
-
-        for (int z = 0; z < n; z++)
-            if (cap[z][t] && prev[z] != -1) {
-                bot = cap[z][t];
-
-                for (v = z, u = prev[v]; u >= 0; v = u, u = prev[v])
-                    bot = min(bot , cap[u][v]);
-
-                if (!bot) continue;
-                cap[z][t] -= bot;
-                cap[t][z] += bot;
-
-                for (v = z, u = prev[v]; u >= 0; v = u, u = prev[v])
-                    cap[u][v] -= bot , cap[v][u] += bot;
-                flow += bot;
-            }
-    }
+	}
+	return flow;
 }
 
 int main() {
-    int s = 0;
-    int t = 2;
-
-    // Add an edge from s to node 1 with weight a
-    addedge(s,1,a);
-    // Add an edge from node 1 to t with weight b
-    addedge(1,t,b);
-
-    // You must set the size of the graph beforehand
+    // You need to set the global number of nodes up front
     n = 3;
+
+    // You need to set the global source and sink up front
+    s = 0;
+    t = 2;
+
+    // Add an edge from source to node 1 with weight 7
+    addedge(s,1,7);
+
+    // Add an edge from node 1 to sink with weight 4
+    addedge(1,t,4);
 
     // Calculate max flow from s to t
     // Dinic's runs in E * V^2
-    cout << maxFlowDinic(s,t) << endl;
+    cout << dinic() << endl;
 }
-
-
