@@ -65,5 +65,8 @@ int main() {
         rg[u][v] = w;
     }
 
+    // Send in original graph, residual graph, source, sink,
+    // and size of graph
+    // Returns maxflow in O(E*flow)
     fulkerson(og, rg, s, t, n);
 }
