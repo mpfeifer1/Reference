@@ -1,3 +1,8 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+
 const ll MAXN = 300*300+2;
 const ll INF = (ll)1000000000;
 
@@ -66,6 +71,19 @@ ll dinic() {
 	return flow;
 }
 
+// This requres 'n' to be set to
+// its value from the previous run
+// This removes all edges from the graph
+void reset() {
+    e.clear();
+    for(int i = 0; i < n; i++) {
+        d[i] = 0;
+        ptr[i] = 0;
+        q[i] = 0;
+        g[i].clear();
+    }
+}
+
 int main() {
     // You need to set the global number of nodes up front
     n = 3;
@@ -83,4 +101,6 @@ int main() {
     // Calculate max flow from s to t
     // Dinic's runs in E * V^2
     cout << dinic() << endl;
+
+    reset();
 }
