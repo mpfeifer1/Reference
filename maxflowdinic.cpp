@@ -77,9 +77,6 @@ ll dinic() {
 void reset() {
     e.clear();
     for(int i = 0; i < n; i++) {
-        d[i] = 0;
-        ptr[i] = 0;
-        q[i] = 0;
         g[i].clear();
     }
 }
