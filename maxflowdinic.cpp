@@ -2,9 +2,8 @@
 
 using namespace std;
 typedef long long ll;
-
-const ll MAXN = 300*300+2;
-const ll INF = (ll)1000000000;
+const ll inf = (ll)1 << 60;
+const ll MAXN = 100000 + 10;
 
 struct edge {
 	ll a, b, cap, flow;
@@ -43,8 +42,8 @@ bool bfs() {
 }
 
 ll dfs(ll v, ll flow) {
-	if(!flow)  return 0;
-	if(v == t)  return flow;
+	if(!flow) return 0;
+	if(v == t) return flow;
 	for(; ptr[v]<(ll)g[v].size(); ++ptr[v]) {
 		ll id = g[v][ptr[v]];
         ll to = e[id].b;
@@ -59,7 +58,7 @@ ll dfs(ll v, ll flow) {
 	return 0;
 }
 
-ll dinic() {
+ll getflow() {
 	ll flow = 0;
 	for(;;) {
 		if(!bfs())  break;
@@ -97,7 +96,7 @@ int main() {
 
     // Calculate max flow from s to t
     // Dinic's runs in E * V^2
-    cout << dinic() << endl;
+    cout << getflow() << endl;
 
     reset();
 }

@@ -3,23 +3,30 @@
 using namespace std;
 typedef long long ll;
 const ll inf = (ll)1 << 60;
+const ll MAXN = 100000 + 10;
 
 struct edge {
-	ll b, cap, cost, flow;
+	ll a, b, cap, cost, flow;
 	size_t back;
 };
 
-void addedge(vector<vector<edge>>& g, ll a, ll b, ll cap, ll cost) {
-	edge r1 = {b,cap,cost,0,g[b].size()};
-	edge r2 = {a,0,-cost,0,g[a].size()};
-	g[a].push_back(r1);
-	g[b].push_back(r2);
+vector<edge> e;
+vector<ll> g[MAXN];
+
+void addedge(ll a, ll b, ll cap, ll cost) {
+	edge e1 = {a,b,cap,cost,0,g[b].size()};
+	edge e2 = {b,a,0,-cost,0,g[a].size()};
+	g[a].push_back((ll) e.size());
+    e.push_back(e1);
+	g[b].push_back((ll) e.size());
+    e.push_back(e2);
 }
 
-ll n, m;
+ll n, s, t;
 ll k = inf; // The maximum amount of flow allowed
 
-pair<ll,ll> mincostflow(vector<vector<edge>>& g, ll s, ll t) {
+// Returns {flow,cost}
+pair<ll,ll> getflow() {
 	ll flow = 0, cost = 0;
 	while(flow < k) {
 		vector<ll> id(n, 0);
@@ -35,8 +42,8 @@ pair<ll,ll> mincostflow(vector<vector<edge>>& g, ll s, ll t) {
 			id[v] = 2;
 			if(qh == n) qh = 0;
 			for(size_t i=0; i<g[v].size(); ++i) {
-				edge& r = g[v][i];
-				if(r.f < r.cap && d[v] + r.cost < d[r.b]) {
+				edge& r = e[g[v][i]];
+				if(r.flow < r.cap && d[v] + r.cost < d[r.b]) {
 					d[r.b] = d[v] + r.cost;
 					if(id[r.b] == 0) {
 						q[qt++] = r.b;
@@ -56,23 +63,27 @@ pair<ll,ll> mincostflow(vector<vector<edge>>& g, ll s, ll t) {
 		ll addflow = k - flow;
 		for(ll v=t; v!=s; v=p[v]) {
 			ll pv = p[v]; size_t pr = p_edge[v];
-			addflow = min(addflow, g[pv][pr].cap - g[pv][pr].f);
+			addflow = min(addflow, e[g[pv][pr]].cap - e[g[pv][pr]].flow);
 		}
 		for(ll v=t; v!=s; v=p[v]) {
-			ll pv = p[v]; size_t pr = p_edge[v], r = g[pv][pr].back;
-			g[pv][pr].f += addflow;
-			g[v][r].f -= addflow;
-			cost += g[pv][pr].cost * addflow;
+			ll pv = p[v]; size_t pr = p_edge[v], r = e[g[pv][pr]].back;
+			e[g[pv][pr]].flow += addflow;
+			e[g[v][r]].flow -= addflow;
+			cost += e[g[pv][pr]].cost * addflow;
 		}
 		flow += addflow;
 	}
     return {flow,cost};
 }
 
-int main() {
-    // Set the global n, m, and k
+void reset() {
+    e.clear();
+    for(int i = 0; i < n; i++) {
+        g[i].clear();
+    }
+}
 
-	vector<vector<edge>> g(n);
-	ll s, t;
+int main() {
+    // Set the global n, s, t and k
 
 }
