@@ -63,7 +63,7 @@ ll getflow() {
 	for(;;) {
 		if(!bfs())  break;
 		memset(ptr, 0, n * sizeof ptr[0]);
-		while(ll pushed = dfs(s,INF)) {
+		while(ll pushed = dfs(s,inf)) {
 			flow += pushed;
         }
 	}
