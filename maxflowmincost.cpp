@@ -5,38 +5,39 @@ typedef long long ll;
 const ll inf = (ll)1 << 60;
 
 struct edge {
-	int b, u, c, f;
+	ll b, cap, cost, flow;
 	size_t back;
 };
 
-void add_edge(vector<vector<edge>>& g, int a, int b, int u, int c) {
-	edge r1 = {b,u,c,0,g[b].size()};
-	edge r2 = {a,0,-c,0,g[a].size()};
+void addedge(vector<vector<edge>>& g, ll a, ll b, ll cap, ll cost) {
+	edge r1 = {b,cap,cost,0,g[b].size()};
+	edge r2 = {a,0,-cost,0,g[a].size()};
 	g[a].push_back(r1);
 	g[b].push_back(r2);
 }
 
-int n, m, k;
+ll n, m;
+ll k = inf; // The maximum amount of flow allowed
 
-pair<int,int> mincostflow(vector<vector<edge>>& g, int s, int t) {
-	int flow = 0,  cost = 0;
+pair<ll,ll> mincostflow(vector<vector<edge>>& g, ll s, ll t) {
+	ll flow = 0, cost = 0;
 	while(flow < k) {
-		vector<int> id(n, 0);
-		vector<int> d(n, inf);
-		vector<int> q(n);
-		vector<int> p(n);
+		vector<ll> id(n, 0);
+		vector<ll> d(n, inf);
+		vector<ll> q(n);
+		vector<ll> p(n);
 		vector<size_t> p_edge(n);
-		int qh=0, qt=0;
+		ll qh=0, qt=0;
 		q[qt++] = s;
 		d[s] = 0;
 		while(qh != qt) {
-			int v = q[qh++];
+			ll v = q[qh++];
 			id[v] = 2;
-			if(qh == n)  qh = 0;
+			if(qh == n) qh = 0;
 			for(size_t i=0; i<g[v].size(); ++i) {
 				edge& r = g[v][i];
-				if(r.f < r.u && d[v] + r.c < d[r.b]) {
-					d[r.b] = d[v] + r.c;
+				if(r.f < r.cap && d[v] + r.cost < d[r.b]) {
+					d[r.b] = d[v] + r.cost;
 					if(id[r.b] == 0) {
 						q[qt++] = r.b;
 						if(qt == n) qt = 0;
@@ -52,16 +53,16 @@ pair<int,int> mincostflow(vector<vector<edge>>& g, int s, int t) {
 			}
 		}
 		if(d[t] == inf) break;
-		int addflow = k - flow;
-		for(int v=t; v!=s; v=p[v]) {
-			int pv = p[v]; size_t pr = p_edge[v];
-			addflow = min(addflow, g[pv][pr].u - g[pv][pr].f);
+		ll addflow = k - flow;
+		for(ll v=t; v!=s; v=p[v]) {
+			ll pv = p[v]; size_t pr = p_edge[v];
+			addflow = min(addflow, g[pv][pr].cap - g[pv][pr].f);
 		}
-		for(int v=t; v!=s; v=p[v]) {
-			int pv = p[v]; size_t pr = p_edge[v], r = g[pv][pr].back;
+		for(ll v=t; v!=s; v=p[v]) {
+			ll pv = p[v]; size_t pr = p_edge[v], r = g[pv][pr].back;
 			g[pv][pr].f += addflow;
 			g[v][r].f -= addflow;
-			cost += g[pv][pr].c * addflow;
+			cost += g[pv][pr].cost * addflow;
 		}
 		flow += addflow;
 	}
@@ -72,6 +73,6 @@ int main() {
     // Set the global n, m, and k
 
 	vector<vector<edge>> g(n);
-	int s, t;
+	ll s, t;
 
 }
