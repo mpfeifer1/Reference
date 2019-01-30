@@ -4,7 +4,7 @@ struct rat {
 };
 
 bool operator<(const rat& x, const rat& y) {
-    return tie(x.top, x.bot) < tie(y.top, y.bot);
+    return x.top * y.bot < y.top * x.bot;
 }
 
 void simplify(rat& r) {
@@ -35,10 +35,7 @@ rat mul(rat r1, rat r2) {
 }
 
 rat mul(rat r1, ll i) {
-    simplify(r1);
-    rat ret = {r1.top * i, r1.bot};
-    simplify(ret);
-    return ret;
+    return mul(r1,{i,1});
 }
 
 rat div(rat r1, rat r2) {
@@ -50,10 +47,7 @@ rat div(rat r1, rat r2) {
 }
 
 rat div(rat r1, ll i) {
-    simplify(r1);
-    rat ret = {r1.top, r1.bot * i};
-    simplify(ret);
-    return ret;
+    return div(r1,{i,1});
 }
 
 rat add(rat r1, rat r2) {
@@ -75,10 +69,7 @@ rat add(rat r1, rat r2) {
 }
 
 rat add(rat r1, ll i) {
-    simplify(r1);
-    rat ret = {r1.top + (i * r1.bot), r1.bot};
-    simplify(ret);
-    return ret;
+    return add(r1,{i,1});
 }
 
 rat sub(rat r1, rat r2) {
@@ -100,10 +91,7 @@ rat sub(rat r1, rat r2) {
 }
 
 rat sub(rat r1, ll i) {
-    simplify(r1);
-    rat ret = {r1.top - (i * r1.bot), r1.bot};
-    simplify(ret);
-    return ret;
+    return sub(r1,{i,1});
 }
 
 rat perpendicular(rat r) {
@@ -118,13 +106,6 @@ rat abs(rat r) {
     if(r.top < 0) {
         r.top *= -1;
     }
-    simplify(r);
-    return r;
-}
-
-rat neg(rat r) {
-    simplify(r);
-    r.top *= -1;
     simplify(r);
     return r;
 }
