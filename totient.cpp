@@ -1,6 +1,7 @@
 ll phi(ll n) {
+    ll tempN = n;
     ll result = n;
-    for(ll i = 2; i*i < n; i++) {
+    for(ll i = 2; i*i <= tempN; i++) {
         if(n % i == 0) {
             while(n % i == 0) {
                 n /= i;
@@ -8,11 +9,6 @@ ll phi(ll n) {
             result -= result / i;
         }
     }
-
-    if(n > 1) {
-        result -= result / n;
-    }
-
+    if(n > 1) result -= result / n;
     return result;
 }
-
